@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sleep Assessment</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<style>
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    min-height: 100vh;
+}
+
+/* Glass Card */
+.container-box {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    border-radius: 25px;
+    padding: 40px;
+    max-width: 550px;
+    margin: 60px auto;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    animation: fadeIn 1s ease;
+}
+
+/* Heading */
+h1 {
+    text-align: center;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Labels */
+label {
+    color: #fff;
+    font-weight: 500;
+}
+
+/* Slider */
+input[type=range] {
+    width: 100%;
+    appearance: none;
+    height: 8px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.3);
+    outline: none;
+}
+
+/* Thumb */
+input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#ff7eb3,#ff758c);
+    box-shadow: 0 0 15px rgba(255,118,136,0.8);
+    cursor: pointer;
+    transition: 0.3s;
+}
+input[type=range]:hover::-webkit-slider-thumb {
+    transform: scale(1.3);
+}
+
+/* Stress colors */
+.green { accent-color: #00ff88; }
+.yellow { accent-color: #ffd166; }
+.red { accent-color: #ff4d6d; }
+
+/* Button */
+.btn-custom {
+    background: linear-gradient(to right,#ff7eb3,#ff758c);
+    border: none;
+    padding: 14px;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+.btn-custom:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255,118,136,0.6);
+}
+
+/* Fade Animation */
+@keyframes fadeIn {
+    from {opacity:0; transform:translateY(20px);}
+    to {opacity:1; transform:translateY(0);}
+}
+
+/* Value Badge */
+.value-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-left: 5px;
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container-box">
+
+<h1 class="mb-4">🌙 Sleep Assessment</h1>
+
+<form action="/predict" method="post">
+
+<div class="mb-4">
+<label>Screen Time Before Bed 
+<span id="s1" class="value-badge">2</span> hrs</label>
+<input type="range" name="screen" min="0" max="6" value="2"
+oninput="s1.innerText=this.value">
+</div>
+
+<div class="mb-4">
+<label>Caffeine Intake 
+<span id="s2" class="value-badge">150</span> mg</label>
+<input type="range" name="caffeine" min="0" max="400" value="150"
+oninput="s2.innerText=this.value">
+</div>
+
+<div class="mb-4">
+<label>Physical Activity 
+<span id="s3" class="value-badge">30</span> mins</label>
+<input type="range" name="activity" min="0" max="120" value="30"
+oninput="s3.innerText=this.value">
+</div>
+
+<div class="mb-4">
+<label>Nap Duration 
+<span id="s4" class="value-badge">0</span> mins</label>
+<input type="range" name="nap" min="0" max="120" value="0"
+oninput="s4.innerText=this.value">
+</div>
+
+<div class="mb-4">
+<label>
+Stress Level 
+<span id="stressValue" class="value-badge">0</span>
+(<span id="stressLabel">Low 😌</span>)
+</label>
+<input type="range" id="stress" name="stress" min="0" max="10" value="0">
+</div>
+
+<button type="submit" class="btn btn-custom w-100">
+ Get My Sleep Report
+</button>
+
+</form>
+</div>
+
+<script>
+const stress = document.getElementById("stress");
+const stressValue = document.getElementById("stressValue");
+const stressLabel = document.getElementById("stressLabel");
+
+stress.oninput = function () {
+    let val = parseInt(this.value);
+    stressValue.innerText = val;
+
+    if (val <= 4) stressLabel.innerText = "Low 😌";
+    else if (val == 5) stressLabel.innerText = "Moderate 😐";
+    else stressLabel.innerText = "High 😫";
+
+    this.classList.remove("green","yellow","red");
+
+    if (val <= 3) this.classList.add("green");
+    else if (val <= 6) this.classList.add("yellow");
+    else this.classList.add("red");
+};
+
+window.onload = ()=>stress.oninput();
+</script>
+
+</body>
+</html>

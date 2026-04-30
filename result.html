@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sleep Result</title>
+
+<!-- Chart.js FIXED -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    color: white;
+    text-align: center;
+    transition: 0.5s;
+    
+}
+@keyframes fadeIn {
+    from {opacity:0; transform:translateY(20px);}
+    to {opacity:1; transform:translateY(0);}
+}
+/* Dark mode */
+.dark {
+    background: #121212;
+}
+
+/* Toggle */
+.toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    font-size: 22px;
+}
+
+/* Card */
+.card {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    margin: 40px auto;
+    padding: 40px;
+    border-radius: 25px;
+    width: 90%;
+    max-width: 550px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+    animation: fadeIn 1s ease;
+}
+
+/* Score Circle */
+.circle {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin: auto;
+  background: conic-gradient(#ff7eb3 var(--score-percent), rgba(255,255,255,0.2) var(--score-percent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: bold;
+  animation: pop 1s ease;
+}
+
+/* Progress bar */
+.progress-bar {
+    height: 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.2);
+    margin-top: 10px;
+}
+.progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(to right,#00f2fe,#4facfe);
+    width: var(--score-percent);
+}
+
+/* Animations */
+@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+@keyframes pop { from {transform:scale(0);} to {transform:scale(1);} }
+
+canvas {
+    margin-top: 20px;
+}
+
+/* Tips */
+ul {
+    text-align: left;
+    margin-top: 20px;
+}
+li {
+    margin-bottom: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="toggle" onclick="toggleMode()">🌙</div>
+
+<div class="card">
+
+<div class="circle" data-score="{{score}}">{{score}}%</div>
+
+<h2>{{result}}</h2>
+<p>Stress Level: <b>{{stress}}</b> ({{stress_label}})</p>
+
+<!-- Progress -->
+<div class="progress-bar">
+    <div class="progress-fill"></div>
+</div>
+
+<h3>Sleep Distribution</h3>
+<canvas id="sleepChart"></canvas>
+
+<h3>Sleep Trend</h3>
+<canvas id="lineChart"></canvas>
+
+<h3>AI Suggestions</h3>
+<ul>
+{% for tip in tips %}
+<li>✔ {{tip}}</li>
+{% endfor %}
+</ul>
+
+</div>
+
+<script>
+function toggleMode(){
+    document.body.classList.toggle("dark");
+}
+
+/* Convert score to hours */
+const circle = document.querySelector('.circle');
+let score = parseFloat(circle.dataset.score) || 0;
+circle.style.setProperty('--score-percent', score + '%');
+let sleepHours = (score / 100) * 8;
+let awake = 8 - sleepHours;
+
+/* Save history */
+let history = JSON.parse(localStorage.getItem("sleepHistory")) || [];
+history.push(score);
+localStorage.setItem("sleepHistory", JSON.stringify(history));
+
+const progressFill = document.querySelector('.progress-fill');
+progressFill.style.width = score + '%';
+
+/* DOUGHNUT */
+new Chart(document.getElementById("sleepChart"), {
+    type: 'doughnut',
+    data: {
+        labels: ['Sleep Hours', 'Awake'],
+        datasets: [{
+            data: [sleepHours, awake],
+            backgroundColor: ['#00f2fe','#ff758c']
+        }]
+    },
+    options: {
+        plugins: {
+            legend: { labels: { color: 'white' } }
+        }
+    }
+});
+
+/* LINE TREND */
+new Chart(document.getElementById("lineChart"), {
+    type: 'line',
+    data: {
+        labels: history.map((_,i)=>"Day "+(i+1)),
+        datasets: [{
+            label: "Sleep Score",
+            data: history,
+            borderColor: "#00f2fe",
+            fill: false
+        }]
+    },
+    options: {
+        plugins: {
+            legend: { labels: { color: 'white' } }
+        },
+        scales: {
+            x: { ticks: { color: 'white' } },
+            y: { ticks: { color: 'white' } }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
